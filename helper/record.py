@@ -1,7 +1,14 @@
+from datetime import datetime
+import os
+import time
+import pickle
+from pathlib import Path
+months=['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
+recordDirectory = Path(os.path.dirname(__file__)).parent.absolute()
 def getRecord(month: str, year:str):
     pastRecord = None
-    month_pickle =  os.path.join(fileDirectory, 'Records', month + str(year) + '.pickle')
+    month_pickle =  os.path.join(recordDirectory, 'Records', month + str(year) + '.pickle')
     if (os.path.exists(month_pickle)):
         with open(month_pickle, 'rb') as file:
             pastRecord = pickle.load(file) 
@@ -12,7 +19,7 @@ def getRecord(month: str, year:str):
 def updateRecord(dtime: datetime, toPost: list):
     updatedRecord = None
     month = months[dtime.month-1]
-    month_pickle =  os.path.join(fileDirectory, 'Records', month + str(dtime.year) + '.pickle')
+    month_pickle =  os.path.join(recordDirectory, 'Records', month + str(dtime.year) + '.pickle')
     print(month_pickle)
     if(os.path.exists(month_pickle)):
         updatedRecord = getRecord(month, dtime.year)
@@ -21,7 +28,7 @@ def updateRecord(dtime: datetime, toPost: list):
                 updatedRecord[entryNumber][meal]+=1
             else:
                 updatedRecord[entryNumber] = {
-                    'breakFast': 0,
+                    'breakfast': 0,
                     'lunch': 0,
                     'dinner': 0 
                     } 
@@ -32,7 +39,7 @@ def updateRecord(dtime: datetime, toPost: list):
         newRecord = {}
         for entryNumber,_,meal in toPost:
             newRecord[entryNumber]={
-                    'breakFast': 0,
+                    'breakfast': 0,
                     'lunch': 0,
                     'dinner': 0 
                     } 

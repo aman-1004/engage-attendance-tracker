@@ -1,70 +1,16 @@
 from datetime import datetime
-from re import I
-from turtle import update
-import cv2 as cv
 import numpy as np
+import cv2 as cv
 import face_recognition
 import os
 import time 
-import pickle
-
+from helper.record import *
 toPost = []
-months=['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-fileDirectory = os.path.dirname(__file__)
 
+fileDirectory = Path(os.path.dirname(__file__)).absolute()
 def postData(entryNumber:str, dtime: datetime, meal:str):
     print((entryNumber, dtime, meal))
     toPost.append((entryNumber, dtime, meal))
-
-def getRecord(month: str, year:str):
-    pastRecord = None
-    month_pickle =  os.path.join(fileDirectory, 'Records', month + str(year) + '.pickle')
-    if (os.path.exists(month_pickle)):
-        with open(month_pickle, 'rb') as file:
-            pastRecord = pickle.load(file) 
-        return pastRecord 
-    else:
-        return None
-
-def updateRecord(dtime: datetime, toPost: list):
-    updatedRecord = None
-    month = months[dtime.month-1]
-    month_pickle =  os.path.join(fileDirectory, 'Records', month + str(dtime.year) + '.pickle')
-    print(month_pickle)
-    if(os.path.exists(month_pickle)):
-        updatedRecord = getRecord(month, dtime.year)
-        for entryNumber,_, meal in toPost:
-            if updatedRecord.get(entryNumber):
-                updatedRecord[entryNumber][meal]+=1
-            else:
-                updatedRecord[entryNumber] = {
-                    'breakfast': 0,
-                    'lunch': 0,
-                    'dinner': 0 
-                    } 
-                updatedRecord[entryNumber][meal]+=1
-        with open(month_pickle,'wb+') as file:
-            pickle.dump(updatedRecord, file)
-    else:
-        newRecord = {}
-        for entryNumber,_,meal in toPost:
-            newRecord[entryNumber]={
-                    'breakfast': 0,
-                    'lunch': 0,
-                    'dinner': 0 
-                    } 
-            newRecord[entryNumber][meal]+=1
-        with open(month_pickle,'wb+') as file:
-            pickle.dump(newRecord, file)
-
-def printRecord(month, year):
-    record = getRecord(month, year)
-    if record:
-        for i in record:
-            print(i, record[i])
-    else:
-        print("Record not available for this month")
-
 
 def start(dtime: datetime, time_interval_seconds: int, meal:str):
     end_time = time.time() + time_interval_seconds
