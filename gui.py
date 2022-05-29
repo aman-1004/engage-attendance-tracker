@@ -48,11 +48,12 @@ def open_export_window():
     select_record = tk.OptionMenu(export_window, default_value, *records_available)
 
     def browse(): 
-        export_window.destroy()
+        export_window.withdraw()
         filedir = filedialog.askdirectory(initialdir=exportDir)    
         record = default_value.get()
         # print(filedir)
         export(record, filedir)
+        export_window.destroy()
 
     button = tk.Button(export_window, text="Browse where to save file", command=browse)
     select_record.pack() 
@@ -64,19 +65,19 @@ def open_register_user_window():
     entry_label = tk.Label(register_window, text="*Enter Entry Number:")
     entry_widget = tk.Entry(register_window)
     def browse_image():
-        register_window.destroy() 
+        register_window.withdraw()
         imagePath = filedialog.askopenfilename()
         print(imagePath)
         entryNumber = None
-        try:
-            entryNumber = entry_widget.get()
-            image_ext=os.path.splitext(imagePath)[1]
-            print(image_ext)
-            if entryNumber and image_ext in ['.jpg', '.jpeg', '.png']:
-                print('saving images..')
-                shutil.copy(imagePath, os.path.join(imageFolder, entryNumber+image_ext))
-        except:
-            pass
+        entryNumber = entry_widget.get()
+        image_ext=os.path.splitext(imagePath)[1]
+        print(image_ext)
+        if entryNumber and image_ext in ['.jpg', '.jpeg', '.png']:
+            print('saving images..')
+            shutil.copy(imagePath, os.path.join(imageFolder, entryNumber+image_ext))
+        else: 
+            print("Not saving. Either entry number is missing or image has wrong extension (only .jpg, .jpeg, .png are valid)")
+        register_window.destroy() 
 
 
     button = tk.Button(register_window, text="Browse image", command=browse_image)
