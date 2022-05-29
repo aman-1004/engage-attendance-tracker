@@ -5,22 +5,21 @@ import face_recognition
 import os
 import time 
 from helper.record import *
-toPost = []
 
 fileDirectory = Path(os.path.dirname(__file__)).absolute()
-def postData(entryNumber:str, dtime: datetime, meal:str):
-    print((entryNumber, dtime, meal))
+
+
+def postData(entryNumber:str, dtime: datetime, meal:str, toPost):
     toPost.append((entryNumber, dtime, meal))
 
-def start(dtime: datetime, time_interval_seconds: int, meal:str):
+def start(dtime: datetime, time_interval_seconds: int, meal:str, toPost):
     end_time = time.time() + time_interval_seconds
     path = os.path.join(fileDirectory, 'Images')
-    print(path)
     images = []
     labels = []
     files = os.listdir(path)
-    print(path)
-    print(files)
+    # print(path)
+    # print(files)
 
     # Obtain list of names withuut extension. 
     for file in files:
@@ -56,8 +55,9 @@ def start(dtime: datetime, time_interval_seconds: int, meal:str):
             if matches[matchIndex]:
                 name = labels.pop(matchIndex)
                 encodeListKnown.pop(matchIndex)
-                postData(name, dtime, meal.lower()) 
-                print(labels)
+                print("detected face:", name)
+                postData(name, dtime, meal.lower(), toPost) 
+                print("labels are:", labels)
                 # To get coordinate of face in original image, coordinates of compressed Image are multiplied by 4 
                 y1,x2,y2,x1 = list(map(lambda x: 4*x, faceLocation))
                 cv.rectangle(img, (x1,y1), (x2,y2), (0,255,0), 3)
@@ -66,20 +66,24 @@ def start(dtime: datetime, time_interval_seconds: int, meal:str):
                 skip = True
                 cv.putText(img,name, (x1+6, y2-6), cv.FONT_HERSHEY_COMPLEX,1,(255,255,255),2)
                 cv.imshow('WebCam', img)
-                if cv.waitKey(1) & 0xFF == ord('q'): break
-                time.sleep(1) # Freeze for 1 second to allow attendee to confirm his attendance.
+                if cv.waitKey(1) & 0xFF == ord('q'): 
+                    break
+                # time.sleep(1) # Freeze for 1 second to allow attendee to confirm his attendance.
 
         if(not skip):
             cv.imshow('WebCam', img)
-            if cv.waitKey(1) & 0xFF == ord('q'): break
-
+            if cv.waitKey(1) & 0xFF == ord('q'): 
+                break
     if len(encodeListKnown):
         print("Time is over")
 
+    cv.destroyAllWindows()
+    cap.release()
 meals = ['breakfast', 'lunch', 'dinner']
 
-start(datetime.now(), 20, meals[2])
-print('final post is' , toPost)
 
-updateRecord(datetime.now(), toPost)
-printRecord(months[datetime.now().month-1], datetime.now().year)
+if __name__ == "__main__":
+    toPost = []
+    start(datetime.now(), 30, 'dinner', toPost)
+    print(toPost)
+    getRecord('Mar', 2022)

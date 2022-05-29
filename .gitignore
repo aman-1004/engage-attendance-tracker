@@ -1,1 +1,4 @@
 .vscode
+*.bck
+__pycache__
+tem.py
